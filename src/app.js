@@ -26,6 +26,29 @@ app.post('/signup', async (req, res) => {
 })
 
 
+app.get('/feed', async (req, res) => {
+    try {
+        // const email = 
+        const userdata = await User.find({ emailId: req.body.email });
+        if (!userdata) {
+            return res.status(404).json({
+                message: 'User not found'
+            })
+        } else {
+
+            res.status(200).json({
+                message: 'Data fetched successfully',
+                data: userdata
+            })
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: 'Error fetching data',
+            error: error
+        })
+    }
+})
+
 app.listen(3000, () => {
     console.log('Server is running on port 3000')
     dbConnect()
