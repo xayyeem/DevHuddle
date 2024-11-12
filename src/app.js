@@ -1,20 +1,32 @@
 const express = require('express')
+const { auth, userAuth } = require('../middlewares/auth')
 const app = express()
 
-app.get('/user', (req, res) => {
-    res.send({ firstname: 'khalid', lastname: 'khalid' })
+// handle auth middleware fro auth req
+app.use('/admin', auth)
+// app.use('/user', userAuth)
+
+
+app.get('/admin/getData', (req, res) => {
+    res.send('all data sent')
+
 })
 
-app.post('/user', (req, res) => {
-    res.send('saved success')
+app.get('/user', userAuth, (req, res) => {
+    res.send('heehehehhehe')
 })
 
-app.delete('/user', (req, res) => {
-    res.send('deleted success')
-})
+app.get('/admin/deleteData', (req, res) => {
+    const token = 'xyz'
+    const checkAuth = token === 'xyz'
+    if (!checkAuth) {
+        res.status(401).send(
+            'unauthorize user'
+        )
+    } else {
+        res.send('Delete all data sent')
+    }
 
-app.use('/test', (req, res) => {
-    res.send('hello from test')
 })
 
 app.listen(3000, () => {
