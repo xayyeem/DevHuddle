@@ -49,6 +49,30 @@ app.get('/feed', async (req, res) => {
     }
 })
 
+app.delete('/delete', async (req, res) => {
+    const userId = req.body._id
+    try {
+        const deleteUser = await User.indByIdAndDelete({ _id: userId })
+        res.send(deleteUser)
+
+        // res.
+    } catch (error) {
+
+    }
+})
+
+
+app.patch('/user', async (req, res) => {
+    try {
+        const data = req.body
+        const userId = req.body._id
+        await User.findByIdAndUpdate({ userId: data }, data)
+        res.send('updated success')
+    } catch (error) {
+
+    }
+})
+
 app.listen(3000, () => {
     console.log('Server is running on port 3000')
     dbConnect()
