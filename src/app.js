@@ -1,34 +1,30 @@
 const express = require('express')
 const { auth, userAuth } = require('../middlewares/auth')
+const dbConnect = require('../config/database')
+const User = require('../model/user')
 const app = express()
 
-// handle auth middleware fro auth req
-app.use('/admin', auth)
-// app.use('/user', userAuth)
 
-
-app.get('/admin/getData', (req, res) => {
-    res.send('all data sent')
-
-})
-
-app.get('/user', userAuth, (req, res) => {
-    res.send('heehehehhehe')
-})
-
-app.get('/admin/deleteData', (req, res) => {
-    const token = 'xyz'
-    const checkAuth = token === 'xyz'
-    if (!checkAuth) {
-        res.status(401).send(
-            'unauthorize user'
-        )
-    } else {
-        res.send('Delete all data sent')
+app.post('/signup', async (req, res) => {
+    const userObj = {
+        firstName: 'Khalid',
+        lastName: 'Jafri',
+        email: 'khalidjafriq@gmail.com',
+        password: 'password123',
+        age: '23',
+        gender: 'male'
     }
-
+    // creating a new instance of user model
+    const user = new User(userObj)
+    await user.save()
+    res.status(201).json({
+        message: 'User created successfully',
+        data: user
+    })
 })
+
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000')
+    dbConnect()
 })
