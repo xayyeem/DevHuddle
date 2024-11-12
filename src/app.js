@@ -4,23 +4,25 @@ const dbConnect = require('../config/database')
 const User = require('../model/user')
 const app = express()
 
+app.use(express.json())
+
 
 app.post('/signup', async (req, res) => {
-    const userObj = {
-        firstName: 'Khalid',
-        lastName: 'Jafri',
-        email: 'khalidjafriq@gmail.com',
-        password: 'password123',
-        age: '23',
-        gender: 'male'
+    // console.log(req.body)
+
+    try {
+        const user = new User(req.body)
+        user.save()
+        res.status(200).json({
+            message: 'User created successfully',
+            data: user
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: 'Error creating user',
+            error: error
+        })
     }
-    // creating a new instance of user model
-    const user = new User(userObj)
-    await user.save()
-    res.status(201).json({
-        message: 'User created successfully',
-        data: user
-    })
 })
 
 
