@@ -1,86 +1,112 @@
-const express = require('express')
-const { auth, userAuth } = require('../middlewares/auth')
-const dbConnect = require('../config/database')
-const User = require('../model/user')
-const app = express()
+const express = require('express');
+const connectDB = require("./config/database");
+const app = express();
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+// const bcrypt = require('bcrypt');
+// const User = require('./models/user');
+// const validateSignupData = require('./utils/validation');
+// const validator = require('validator');
+// const userAuth = require('./middlewares/auth');
 
-app.use(express.json())
+
+// Middleware
+app.use(express.json()); 
+app.use(cookieParser());
+app.use(express.json());
 
 
-app.post('/signup', async (req, res) => {
-    // console.log(req.body)
+const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
+const requestRouter = require('./routes/request'); 
+const userRouter = require('./routes/user'); 
 
-    try {
-        const user = new User(req.body)
-        user.save()
-        res.status(200).json({
-            message: 'User created successfully',
-            data: user
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
+
+
+
+
+// // get User by Email
+// app.get("/user", async (req, res) => {
+//     const userEmail = req.body.emailId;
+
+//     try {
+//         const users = await User.find({ emailId: userEmail })
+//         if (users.length === 0) {
+//             return res.status(404).send("User not found with that email");
+//         }
+//         else {
+//             res.send(users)
+//         }
+//     }
+//     catch (err) {
+//         res.status(400).send("Kuch to gadbad hai daya" + err.message);
+//     }
+
+// })
+
+// // Get All User
+// app.get("/feed", async (req, res) => {
+//     try {
+//         const users = await User.find({});
+//         res.send(users);
+//     }
+//     catch (err) {
+//         res.send("Error fetching users" + err.message);
+//     }
+// })
+
+// // Delete a User
+// app.delete("/user", async (req, res) => {
+//     const userId = req.body.userId
+//     try {
+//         const user = await User.findByIdAndDelete(userId);
+//         res.send("User deleted successfully");
+//     }
+//     catch (err) {
+//         res.send("Error deleting user" + err.message);
+//     }
+// })
+
+// // Update User
+// app.patch("/user/:userId", async (req, res) => {
+//     const userId = req.params?.userId;
+//     const data = req.body;
+//     try {
+//         const ALLOWED_UPDATES = ["userId", "photoUrl", "password", "about", "age", "skills"];
+
+//         const isUpdateAllowed = Object.keys(data).every((k) => {
+//             return ALLOWED_UPDATES.includes(k);
+//         });
+//         if (!isUpdateAllowed) {
+//             return res.status(400).send("Canlt update these fields");
+//         }
+//         const user = await User.findByIdAndUpdate(userId, data, {
+//             new: true, // Use 'new: true' to return the updated document
+//             runValidators: true,
+//         });
+
+//         if (!user) {
+//             return res.status(404).send("User not found");
+//         }
+
+//         res.send("User updated successfully");
+//     } catch (err) {
+//         res.status(400).send("Error updating user: " + err.message);
+//     }
+// });
+
+
+connectDB()
+    .then(() => {
+        console.log("Connected to the database");
+        app.listen(3000, () => {
+            console.log('Server is running on port 3000..badshah bhaisaab');
         })
-    } catch (error) {
-        res.status(400).json({
-            message: 'Error creating user',
-            error: error
-        })
-    }
-})
-
-
-app.get('/feed', async (req, res) => {
-    try {
-        // const email = 
-        const userdata = await User.find({ emailId: req.body.email });
-        if (!userdata) {
-            return res.status(404).json({
-                message: 'User not found'
-            })
-        } else {
-
-            res.status(200).json({
-                message: 'Data fetched successfully',
-                data: userdata
-            })
-        }
-    } catch (error) {
-        res.status(400).json({
-            message: 'Error fetching data',
-            error: error
-        })
-    }
-})
-
-app.delete('/delete', async (req, res) => {
-    const userId = req.body._id
-    try {
-        const deleteUser = await User.indByIdAndDelete({ _id: userId })
-        res.send(deleteUser)
-
-        // res.
-    } catch (error) {
-
-    }
-})
-
-
-app.patch('/user/:id', async (req, res) => {
-    try {
-        const data = req.body
-        const userId = req.params
-        await User.findByIdAndUpdate({ userId: data }, data)
-        const allowedUpdate = ['userId', 'photoUrl', 'about', 'gender', 'age']
-        const isUpdateAllowed = Object.keys(data).every(k => allowedUpdate.includes(k))
-        if (!isUpdateAllowed) {
-            res.status(400).json({
-                message: 'Invalid update'
-            })
-        }
-        res.send('updated success')
-    } catch (error) {
-
-    }
-})
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000')
-    dbConnect()
-})
+    })
+    .catch((err) => {
+        console.error("Error connecting to the database", err);
+    });
